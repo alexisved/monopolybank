@@ -441,6 +441,74 @@
             opacity: 1;
             visibility: visible;
         }
+
+        /* 重置遊戲按鈕 */
+        #reset-game-button {
+            background-color: #d63031;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #reset-game-button:hover {
+            background-color: #ff7675;
+        }
+
+        /* 響應式設計 */
+        /* 手機和小型裝置 */
+        @media (max-width: 599px) {
+            #game-area {
+                grid-template-columns: 1fr;
+            }
+
+            .player-card, .transaction-card, .dice-card, .transaction-history-card {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+
+        /* 平板裝置 */
+        @media (min-width: 600px) and (max-width: 1023px) {
+            #game-area {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .player-card, .transaction-card, .dice-card, .transaction-history-card {
+                flex: 1 1 45%;
+                max-width: 45%;
+            }
+
+            .transaction-history-card {
+                grid-column: 1 / -1; /* 占滿整行 */
+            }
+        }
+
+        /* 桌面裝置 */
+        @media (min-width: 1024px) {
+            #game-area {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .player-card, .transaction-card, .dice-card {
+                flex: 1 1 22%;
+                max-width: 22%;
+            }
+
+            .transaction-history-card {
+                grid-column: 1 / -1; /* 占滿整行 */
+            }
+        }
+
+        @media (min-width: 1440px) {
+            #game-area {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
@@ -518,6 +586,8 @@
             <button onclick="transferMoney()">進行交易</button>
             <!-- 清空按鈕 -->
             <button class="clear-button" onclick="clearTransaction()">清空</button>
+            <!-- 重置遊戲按鈕 -->
+            <button id="reset-game-button" onclick="resetGame()">重置遊戲</button>
         </div>
 
         <!-- 骰子區域卡片 -->
@@ -571,6 +641,7 @@
             updatePlayersInfo();
             updateTransactionOptions();
             updateTransactionHistory();
+            saveGameState();
         }
 
         // 更新玩家資訊顯示，並允許編輯玩家名稱和點選選擇
@@ -644,6 +715,7 @@
             }
             updateTransactionSelects();
             updatePlayersInfo();
+            saveGameState();
         }
 
         // 獲取玩家名稱
@@ -661,6 +733,7 @@
                 updateTransactionOptions();
                 updatePlayersInfo();
                 updateTransactionHistory(); // 更新交易紀錄中玩家名稱
+                saveGameState();
             }
         }
 
@@ -793,6 +866,7 @@
 
                 // 顯示交易成功通知
                 showNotification(transactionMessage, 'success');
+                saveGameState();
             }
         }
 
@@ -807,6 +881,7 @@
                 if (currentAmount < 0) currentAmount = 0; // 防止金額小於0
             }
             amountInput.value = currentAmount;
+            saveGameState();
         }
 
         // 清空交易選擇和金額
@@ -818,6 +893,7 @@
             document.getElementById('amount').value = "";
             updatePlayersInfo();
             showNotification('已清空交易設定。', 'success');
+            saveGameState();
         }
 
         // 更新交易紀錄顯示
@@ -909,6 +985,7 @@
 
                 updatePlayersInfo();
                 updateTransactionHistory();
+                saveGameState();
 
                 // 顯示交易作廢通知
                 showNotification(transactionMessage, 'success');
@@ -942,6 +1019,8 @@
                 die1.classList.remove('shake');
                 die2.classList.remove('shake');
                 diceButton.disabled = false; // 重新啟用按鈕
+
+                saveGameState();
             }, 1000); // 動畫持續1秒
         }
 
@@ -982,6 +1061,57 @@
                 notification.classList.remove('show');
             }, 3000); // 顯示3秒
         }
+
+        // 重置遊戲
+        function resetGame() {
+            if (confirm('確定要重置遊戲嗎？這將清除所有進度。')) {
+                localStorage.removeItem('monopolyGameState');
+                location.reload();
+            }
+        }
+
+        // 保存遊戲狀態到 localStorage
+        function saveGameState() {
+            const gameState = {
+                players: players,
+                transactions: transactions,
+                transactionIdCounter: transactionIdCounter,
+                selectedPayer: selectedPayer,
+                selectedPayee: selectedPayee
+            };
+            localStorage.setItem('monopolyGameState', JSON.stringify(gameState));
+        }
+
+        // 加載遊戲狀態從 localStorage
+        function loadGameState() {
+            const savedState = localStorage.getItem('monopolyGameState');
+            if (savedState) {
+                try {
+                    const gameState = JSON.parse(savedState);
+                    players = gameState.players || [];
+                    transactions = gameState.transactions || [];
+                    transactionIdCounter = gameState.transactionIdCounter || 1;
+                    selectedPayer = gameState.selectedPayer || null;
+                    selectedPayee = gameState.selectedPayee || null;
+
+                    // 顯示遊戲區域
+                    document.getElementById('game-setup').style.display = 'none';
+                    document.getElementById('game-area').style.display = 'grid';
+                    
+                    updatePlayersInfo();
+                    updateTransactionOptions();
+                    updateTransactionHistory();
+                } catch (e) {
+                    console.error('載入遊戲狀態失敗:', e);
+                    localStorage.removeItem('monopolyGameState');
+                }
+            }
+        }
+
+        // 在頁面加載時嘗試載入遊戲狀態
+        window.onload = function() {
+            loadGameState();
+        };
     </script>
 </body>
 </html>
