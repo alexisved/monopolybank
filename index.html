@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>大富翁銀行系統</title>
-    <link rel="stylesheet" href="styles.css">
     <style>
         /* 全局樣式 */
         * {
@@ -12,8 +11,8 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #fdf6e3;
             color: #333;
             margin: 0;
             padding: 0;
@@ -38,6 +37,8 @@
 
         #game-setup h2 {
             margin-bottom: 20px;
+            font-size: 2em;
+            color: #2e4053;
         }
 
         #game-setup label, #game-setup select, #game-setup input, #game-setup button {
@@ -55,40 +56,62 @@
         }
 
         #game-setup button {
-            background-color: #4CAF50;
+            background-color: #6c5ce7;
             color: white;
             border: none;
             padding: 12px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-weight: bold;
         }
 
         #game-setup button:hover {
-            background-color: #45a049;
+            background-color: #a29bfe;
         }
 
         /* 遊戲區域 */
         #game-area {
             display: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
             padding: 20px;
+        }
+
+        /* 使用 CSS Grid 進行布局 */
+        #game-area {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        /* 在更大螢幕上增加欄數 */
+        @media (min-width: 768px) {
+            #game-area {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #game-area {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1440px) {
+            #game-area {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         /* 各卡片共用樣式 */
         .player-card, .transaction-card, .dice-card, .transaction-history-card {
-            background-color: #faf3e0;
+            background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            width: 100%;
-            max-width: 350px;
             text-align: center;
             transition: transform 0.3s ease;
             cursor: pointer; /* 讓玩家卡片顯示為可點擊 */
+            min-width: 280px; /* 確保卡片不會太小 */
         }
 
         .player-card:hover, .transaction-card:hover, .dice-card:hover, .transaction-history-card:hover {
@@ -99,30 +122,33 @@
         .player-card input {
             font-size: 1.2em;
             border: none;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 2px solid #ccc;
             text-align: center;
             background: transparent;
             width: 100%; /* 確保輸入欄寬度為100% */
             padding: 5px 0; /* 調整上下內邊距 */
+            transition: border-bottom 0.3s ease;
         }
 
         .player-card input:focus {
             outline: none;
-            border-bottom: 1px solid #333;
+            border-bottom: 2px solid #6c5ce7;
         }
 
         /* 標示選取的玩家 */
         .selected-payer {
-            border: 2px solid #4CAF50;
+            border: 2px solid #00b894;
         }
 
         .selected-payee {
-            border: 2px solid #007BFF;
+            border: 2px solid #0984e3;
         }
 
         /* 交易區域卡片 */
         .transaction-card h3 {
             margin-bottom: 15px;
+            font-size: 1.5em;
+            color: #2d3436;
         }
 
         .transaction-card label, .transaction-card select, .transaction-card input, .transaction-card button {
@@ -139,48 +165,88 @@
         }
 
         .transaction-card button {
-            background-color: #4CAF50;
+            background-color: #00b894;
             color: white;
             border: none;
             padding: 10px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-weight: bold;
         }
 
         .transaction-card button:hover {
-            background-color: #45a049;
+            background-color: #55efc4;
         }
 
         /* 快速金額按鈕 */
         .quick-amount-buttons {
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
+            gap: 10px;
             margin-top: 10px;
-            flex-wrap: wrap;
+        }
+
+        .amount-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .amount-group .label {
+            flex: 1;
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        .amount-group .buttons {
+            display: flex;
             gap: 5px;
         }
 
-        .quick-amount-buttons button {
-            background-color: #2196F3;
-            color: white;
+        .amount-group .buttons button {
+            padding: 8px;
             border: none;
-            padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
+            color: white;
             transition: background-color 0.3s ease;
-            font-size: 0.9em;
-            flex: 1 1 30%;
-            min-width: 80px;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2em;
+            font-weight: bold;
         }
 
-        .quick-amount-buttons button:hover {
-            background-color: #1976D2;
+        /* 千元按鈕 */
+        .amount-group.thousand .buttons button {
+            background-color: #d63031; /* 紅色 */
+        }
+
+        .amount-group.thousand .buttons button:hover {
+            background-color: #ff7675;
+        }
+
+        /* 百元按鈕 */
+        .amount-group.hundred .buttons button {
+            background-color: #fdcb6e; /* 黃色 */
+        }
+
+        .amount-group.hundred .buttons button:hover {
+            background-color: #ffeaa7;
+        }
+
+        /* 十元按鈕 */
+        .amount-group.ten .buttons button {
+            background-color: #6c5ce7; /* 紫色 */
+        }
+
+        .amount-group.ten .buttons button:hover {
+            background-color: #a29bfe;
         }
 
         /* 清空按鈕 */
         .clear-button {
-            background-color: #f44336;
+            background-color: #d63031;
             color: white;
             border: none;
             padding: 10px;
@@ -189,22 +255,18 @@
             transition: background-color 0.3s ease;
             margin-top: 10px;
             width: 100%;
+            font-weight: bold;
         }
 
         .clear-button:hover {
-            background-color: #d32f2f;
+            background-color: #ff7675;
         }
 
         /* 骰子區域卡片 */
-        .dice-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
         .dice-card h3 {
             margin-bottom: 15px;
+            font-size: 1.5em;
+            color: #2d3436;
         }
 
         .dice-container {
@@ -217,8 +279,8 @@
         .die {
             width: 60px;
             height: 60px;
-            background-color: white;
-            border: 2px solid #333;
+            background-color: #ffeaa7;
+            border: 2px solid #d63031;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -229,7 +291,7 @@
         }
 
         .dice-card button {
-            background-color: #007BFF;
+            background-color: #0984e3;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -237,26 +299,19 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             margin-top: 20px;
+            font-weight: bold;
         }
 
         .dice-card button:hover {
-            background-color: #0056b3;
+            background-color: #74b9ff;
         }
 
         /* 交易紀錄卡片 */
-        .transaction-history-card {
-            background-color: #faf3e0;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 100%;
-            max-width: 600px;
-            text-align: left;
-        }
-
         .transaction-history-card h3 {
             text-align: center;
             margin-bottom: 15px;
+            font-size: 1.5em;
+            color: #2d3436;
         }
 
         .transaction-list {
@@ -270,7 +325,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #fff;
+            background-color: #ffffff;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 4px;
@@ -281,6 +336,7 @@
             flex: 1;
             font-size: 0.95em;
             text-align: left;
+            color: #2d3436;
         }
 
         .transaction-details span {
@@ -288,17 +344,18 @@
         }
 
         .transaction-item button {
-            background-color: #f44336;
+            background-color: #d63031;
             color: white;
             border: none;
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-weight: bold;
         }
 
         .transaction-item button:hover {
-            background-color: #d32f2f;
+            background-color: #ff7675;
         }
 
         /* 動畫樣式 */
@@ -327,8 +384,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
+            background-color: rgba(46, 64, 83, 0.9);
+            color: #dfe6e9;
             padding: 30px;
             border-radius: 10px;
             display: none;
@@ -350,17 +407,18 @@
 
         #dice-result-popup button {
             margin-top: 20px;
-            background-color: #4CAF50;
+            background-color: #00cec9;
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-weight: bold;
         }
 
         #dice-result-popup button:hover {
-            background-color: #45a049;
+            background-color: #81ecec;
         }
 
         /* 通知框樣式 */
@@ -368,7 +426,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: #333;
+            background-color: #2d3436;
             color: #fff;
             padding: 15px 20px;
             border-radius: 5px;
@@ -376,73 +434,12 @@
             visibility: hidden;
             transition: opacity 0.5s ease, visibility 0.5s;
             z-index: 1001;
+            font-weight: bold;
         }
 
         #notification.show {
             opacity: 1;
             visibility: visible;
-        }
-
-        /* 響應式設計 */
-        @media (min-width: 768px) {
-            #game-area {
-                flex-wrap: nowrap;
-                flex-direction: row;
-                justify-content: space-between;
-            }
-
-            .player-card, .transaction-card, .dice-card, .transaction-history-card {
-                width: 48%;
-                max-width: none;
-            }
-
-            .transaction-history-card {
-                width: 100%;
-                max-width: 100%;
-            }
-
-            /* 調整玩家名稱輸入欄防止超出卡片 */
-            .player-card input {
-                width: 100%; /* 確保寬度為100% */
-                max-width: 100%;
-            }
-
-            /* 調整交易金額輸入欄 */
-            .transaction-card input {
-                width: 100%; /* 確保輸入欄寬度為100% */
-                max-width: 100%;
-            }
-        }
-
-        /* 特定針對平板的調整 */
-        @media (min-width: 600px) and (max-width: 1024px) {
-            .player-card, .transaction-card, .dice-card, .transaction-history-card {
-                width: 100%;
-                /* 將玩家卡片的寬度增加約三分之一 */
-                max-width: 467px; /* 350px + ~1/3 */
-            }
-
-            /* 調整玩家名稱輸入欄防止超出卡片 */
-            .player-card input {
-                width: 100%; /* 確保寬度為100% */
-                max-width: 100%;
-            }
-
-            /* 調整交易金額輸入欄 */
-            .transaction-card input {
-                width: 100%; /* 確保輸入欄寬度為100% */
-                max-width: 100%;
-            }
-
-            /* 專門針對玩家卡片增加寬度 */
-            .player-card {
-                max-width: 467px; /* 增加三分之一 */
-            }
-
-            /* 其他卡片保持不變或根據需求調整 */
-            .transaction-card, .dice-card, .transaction-history-card {
-                max-width: 500px; /* 可以根據需求調整 */
-            }
         }
     </style>
 </head>
@@ -469,7 +466,7 @@
             <option value="6">6 人</option>
         </select>
         <label for="initial-balance">輸入初始金額：</label>
-        <input type="number" id="initial-balance" placeholder="初始金額" value="15000">
+        <input type="number" id="initial-balance" placeholder="初始金額" value="1500" min="0">
         <button onclick="initializeGame()">開始新遊戲</button>
     </div>
 
@@ -488,16 +485,35 @@
             <label for="to-player">選擇收款方：</label>
             <select id="to-player">
                 <option value="" disabled selected>請選擇收款方</option>
+                <option value="bank">銀行</option>
             </select>
             <input type="number" id="amount" placeholder="輸入金額" inputmode="numeric">
             <!-- 快速金額按鈕 -->
             <div class="quick-amount-buttons">
-                <button onclick="modifyQuickAmount(1000, true)">+ 千</button>
-                <button onclick="modifyQuickAmount(1000, false)">- 千</button>
-                <button onclick="modifyQuickAmount(100, true)">+ 百</button>
-                <button onclick="modifyQuickAmount(100, false)">- 百</button>
-                <button onclick="modifyQuickAmount(10, true)">+ 十</button>
-                <button onclick="modifyQuickAmount(10, false)">- 十</button>
+                <!-- 千元按鈕組 -->
+                <div class="amount-group thousand">
+                    <div class="label">千元</div>
+                    <div class="buttons">
+                        <button class="increase" onclick="modifyQuickAmount(1000, true)">+</button>
+                        <button class="decrease" onclick="modifyQuickAmount(1000, false)">-</button>
+                    </div>
+                </div>
+                <!-- 百元按鈕組 -->
+                <div class="amount-group hundred">
+                    <div class="label">百元</div>
+                    <div class="buttons">
+                        <button class="increase" onclick="modifyQuickAmount(100, true)">+</button>
+                        <button class="decrease" onclick="modifyQuickAmount(100, false)">-</button>
+                    </div>
+                </div>
+                <!-- 十元按鈕組 -->
+                <div class="amount-group ten">
+                    <div class="label">十元</div>
+                    <div class="buttons">
+                        <button class="increase" onclick="modifyQuickAmount(10, true)">+</button>
+                        <button class="decrease" onclick="modifyQuickAmount(10, false)">-</button>
+                    </div>
+                </div>
             </div>
             <button onclick="transferMoney()">進行交易</button>
             <!-- 清空按鈕 -->
@@ -550,7 +566,7 @@
 
             // 顯示遊戲區域
             document.getElementById('game-setup').style.display = 'none';
-            document.getElementById('game-area').style.display = 'flex';
+            document.getElementById('game-area').style.display = 'grid';
             
             updatePlayersInfo();
             updateTransactionOptions();
@@ -655,6 +671,7 @@
 
             fromPlayerSelect.innerHTML = '<option value="bank">銀行</option>';
             toPlayerSelect.innerHTML = '<option value="" disabled selected>請選擇收款方</option>';
+            toPlayerSelect.innerHTML += '<option value="bank">銀行</option>'; // 確保銀行在收款方中也出現
 
             players.forEach(player => {
                 const optionFrom = document.createElement('option');
@@ -951,11 +968,11 @@
 
             // 設定不同類型的背景顏色
             if (type === 'success') {
-                notification.style.backgroundColor = '#4CAF50'; // 綠色
+                notification.style.backgroundColor = '#00b894'; // 綠色
             } else if (type === 'error') {
-                notification.style.backgroundColor = '#f44336'; // 紅色
+                notification.style.backgroundColor = '#d63031'; // 紅色
             } else {
-                notification.style.backgroundColor = '#333'; // 默認顏色
+                notification.style.backgroundColor = '#2d3436'; // 默認顏色
             }
 
             notification.classList.add('show');
