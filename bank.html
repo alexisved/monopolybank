@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大富翁銀行系統</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        #players-info, #transaction-area, #dice-area, #transaction-history-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        .player-card, .transaction-card, .dice-card, .transaction-history-card {
+            background-color: #faf3e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+        }
+        .player-card input {
+            font-size: 1.2em;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+            background: transparent;
+        }
+        .player-card input:focus {
+            outline: none;
+            border-bottom: 1px solid #333;
+        }
+        .transaction-card label, .transaction-card select, .transaction-card input, .transaction-card button {
+            margin-bottom: 10px;
+            width: 100%;
+            font-size: 1em;
+        }
+        .transaction-card input, .transaction-card select {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .transaction-card button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .transaction-card button:hover {
+            background-color: #45a049;
+        }
+        .dice-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #faf3e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+        }
+        .dice-container {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            justify-content: center;
+        }
+        .die {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+        }
+        .dice-card button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        .dice-card button:hover {
+            background-color: #0056b3;
+        }
+        .transaction-history-card {
+            background-color: #faf3e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            text-align: left;
+        }
+        .transaction-history-card h3 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .transaction-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0;
+            list-style: none;
+        }
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .transaction-details {
+            flex: 1;
+        }
+        .transaction-item button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .transaction-item button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-setup">
+        <label for="num-players">選擇玩家人數：</label>
+        <select id="num-players">
+            <option value="2">2 人</option>
+            <option value="3">3 人</option>
+            <option value="4">4 人</option>
+            <option value="5">5 人</option>
+            <option value="6">6 人</option>
+        </select>
+        <label for="initial-balance">輸入初始金額：</label>
+        <input type="number" id="initial-balance" placeholder="初始金額" value="1500">
+        <button onclick="initializeGame()">開始新遊戲</button>
+    </div>
+
+    <div id="game-area" style="display:none;">
+        <div id="players-info"></div>
+        <div id="transaction-area" class="transaction-card">
+            <label for="from-player">選擇付款方：</label>
+            <select id="from-player" onchange="updateToPlayerOptions()">
+                <option value="bank">銀行</option>
+            </select>
+            <label for="to-player">選擇收款方：</label>
+            <select id="to-player">
+                <option value="" disabled selected>請選擇收款方</option>
+            </select>
+            <input type="number" id="amount" placeholder="輸入金額">
+            <button onclick="transferMoney()">進行交易</button>
+        </div>
+        <div id="dice-area" class="dice-card">
+            <h3>擲骰子</h3>
+            <div class="dice-container">
+                <div class="die" id="die1">-</div>
+                <div class="die" id="die2">-</div>
+            </div>
+            <button onclick="rollDice()">擲骰子</button>
+        </div>
+        <div id="transaction-history-area" class="transaction-history-card">
+            <h3>交易紀錄</h3>
+            <ul class="transaction-list" id="transaction-list">
+                <!-- 交易紀錄將在這裡顯示 -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 玩家資料儲存
+        let players = [];
+
+        // 交易紀錄儲存
+        let transactions = [];
+        let transactionIdCounter = 1; // 用於唯一標識交易
+
+        // 初始化遊戲
+        function initializeGame() {
+            const numPlayers = document.getElementById('num-players').value;
+            const initialBalance = parseInt(document.getElementById('initial-balance').value);
+            players = [];
+            transactions = [];
+            transactionIdCounter = 1;
+
+            // 初始化每個玩家
+            for (let i = 1; i <= numPlayers; i++) {
+                players.push({ id: i, name: `玩家 ${i}`, balance: initialBalance });
+            }
+
+            // 顯示遊戲區域
+            document.getElementById('game-setup').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            
+            updatePlayersInfo();
+            updateTransactionOptions();
+            updateTransactionHistory();
+        }
+
+        // 更新玩家資訊顯示，並允許編輯玩家名稱
+        function updatePlayersInfo() {
+            const playersInfoDiv = document.getElementById('players-info');
+            playersInfoDiv.innerHTML = '';
+
+            players.forEach(player => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-card';
+                playerDiv.innerHTML = `
+                    <input type="text" value="${player.name}" onchange="editPlayerName(${player.id}, this.value)" />
+                    <div>餘額：${player.balance.toLocaleString()} 元</div>
+                `;
+                playersInfoDiv.appendChild(playerDiv);
+            });
+        }
+
+        // 編輯玩家名稱
+        function editPlayerName(playerId, newName) {
+            const player = players.find(player => player.id === playerId);
+            if (player) {
+                player.name = newName;
+                updateTransactionOptions();
+                updatePlayersInfo();
+                updateTransactionHistory(); // 更新交易紀錄中玩家名稱
+            }
+        }
+
+        // 更新交易選項，加入銀行角色
+        function updateTransactionOptions() {
+            const fromPlayerSelect = document.getElementById('from-player');
+            const toPlayerSelect = document.getElementById('to-player');
+
+            fromPlayerSelect.innerHTML = '<option value="bank">銀行</option>';
+            toPlayerSelect.innerHTML = '<option value="" disabled selected>請選擇收款方</option>';
+
+            players.forEach(player => {
+                const optionFrom = document.createElement('option');
+                optionFrom.value = player.id;
+                optionFrom.text = player.name;
+                fromPlayerSelect.appendChild(optionFrom);
+
+                const optionTo = document.createElement('option');
+                optionTo.value = player.id;
+                optionTo.text = player.name;
+                toPlayerSelect.appendChild(optionTo);
+            });
+        }
+
+        // 根據付款方更新收款方選項
+        function updateToPlayerOptions() {
+            const fromPlayerId = document.getElementById('from-player').value;
+            const toPlayerSelect = document.getElementById('to-player');
+
+            toPlayerSelect.innerHTML = '<option value="" disabled selected>請選擇收款方</option>';
+
+            if (fromPlayerId !== 'bank') {
+                const bankOption = document.createElement('option');
+                bankOption.value = 'bank';
+                bankOption.text = '銀行';
+                toPlayerSelect.appendChild(bankOption);
+            }
+
+            players.forEach(player => {
+                if (fromPlayerId !== player.id.toString()) {
+                    const optionTo = document.createElement('option');
+                    optionTo.value = player.id;
+                    optionTo.text = player.name;
+                    toPlayerSelect.appendChild(optionTo);
+                }
+            });
+        }
+
+        // 進行交易，包括銀行角色
+        function transferMoney() {
+            const fromPlayerId = document.getElementById('from-player').value;
+            const toPlayerId = document.getElementById('to-player').value;
+            const amount = parseInt(document.getElementById('amount').value);
+
+            // 檢查付款方和收款方是否為同一人
+            if (fromPlayerId === toPlayerId) {
+                alert('付款方和收款方不能是同一人哦！');
+                return;
+            }
+
+            // 檢查金額是否有效
+            if (isNaN(amount) || amount <= 0) {
+                alert('請輸入有效的金額！');
+                return;
+            }
+
+            // 取得付款方和收款方
+            let fromPlayer = (fromPlayerId === 'bank') ? '銀行' : players.find(player => player.id === parseInt(fromPlayerId));
+            let toPlayer = (toPlayerId === 'bank') ? '銀行' : players.find(player => player.id === parseInt(toPlayerId));
+
+            // 處理銀行相關交易
+            if (fromPlayer === '銀行') {
+                // 銀行支付金額給玩家
+                toPlayer.balance += amount;
+                alert(`銀行支付 ${amount.toLocaleString()} 元給 ${toPlayer.name}！`);
+            } else if (toPlayer === '銀行') {
+                // 玩家支付金額給銀行
+                if (fromPlayer.balance >= amount) {
+                    fromPlayer.balance -= amount;
+                    alert(`${fromPlayer.name} 成功支付 ${amount.toLocaleString()} 元給銀行！`);
+                } else {
+                    alert(`${fromPlayer.name} 餘額不足，支付失敗！`);
+                    return;
+                }
+            } else {
+                // 玩家之間的交易
+                if (fromPlayer.balance >= amount) {
+                    fromPlayer.balance -= amount;
+                    toPlayer.balance += amount;
+                    alert(`${fromPlayer.name} 成功轉帳 ${amount.toLocaleString()} 元給 ${toPlayer.name}！`);
+                } else {
+                    alert(`${fromPlayer.name} 餘額不足，轉帳失敗！`);
+                    return;
+                }
+            }
+
+            // 記錄交易
+            const transaction = {
+                id: transactionIdCounter++,
+                from: (fromPlayer === '銀行') ? '銀行' : fromPlayer.id,
+                to: (toPlayer === '銀行') ? '銀行' : toPlayer.id,
+                amount: amount,
+                voided: false
+            };
+            transactions.push(transaction);
+            updateTransactionHistory();
+
+            updatePlayersInfo();
+
+            // 清除收款方與交易金額
+            document.getElementById('to-player').value = "";
+            document.getElementById('amount').value = "";
+        }
+
+        // 更新交易紀錄顯示
+        function updateTransactionHistory() {
+            const transactionList = document.getElementById('transaction-list');
+            transactionList.innerHTML = '';
+
+            transactions.forEach(transaction => {
+                const li = document.createElement('li');
+                li.className = 'transaction-item';
+
+                // 獲取付款方和收款方名稱
+                const fromName = (transaction.from === '銀行') ? '銀行' : players.find(p => p.id === transaction.from)?.name || '未知';
+                const toName = (transaction.to === '銀行') ? '銀行' : players.find(p => p.id === transaction.to)?.name || '未知';
+
+                li.innerHTML = `
+                    <div class="transaction-details">
+                        <strong>${fromName}</strong> → <strong>${toName}</strong> : ${transaction.amount.toLocaleString()} 元
+                        ${transaction.voided ? '<span style="color: red;">(已作廢)</span>' : ''}
+                    </div>
+                    ${!transaction.voided ? `<button onclick="voidTransaction(${transaction.id})">作廢</button>` : ''}
+                `;
+                transactionList.appendChild(li);
+            });
+        }
+
+        // 作廢交易紀錄
+        function voidTransaction(transactionId) {
+            const transaction = transactions.find(t => t.id === transactionId);
+            if (!transaction || transaction.voided) {
+                alert('無效的交易紀錄！');
+                return;
+            }
+
+            // 取得交易的付款方和收款方
+            let fromPlayer = (transaction.from === '銀行') ? '銀行' : players.find(p => p.id === transaction.from);
+            let toPlayer = (transaction.to === '銀行') ? '銀行' : players.find(p => p.id === transaction.to);
+
+            // 處理復原金額
+            if (toPlayer === '銀行') {
+                // 交易原本是付款方支付給銀行，復原為銀行支付給付款方
+                if (fromPlayer === '銀行') {
+                    // 交易原本是銀行支付給銀行，這種情況不應發生
+                    alert('無法作廢此交易！');
+                    return;
+                } else {
+                    // 復原：銀行支付給付款方
+                    fromPlayer.balance += transaction.amount;
+                }
+            } else if (fromPlayer === '銀行') {
+                // 交易原本是銀行支付給收款方，復原為收款方支付給銀行
+                if (toPlayer.balance >= transaction.amount) {
+                    toPlayer.balance -= transaction.amount;
+                } else {
+                    alert(`${toPlayer.name} 餘額不足以作廢此交易！`);
+                    return;
+                }
+            } else {
+                // 玩家之間的交易，復原為收款方支付給付款方
+                if (toPlayer.balance >= transaction.amount) {
+                    toPlayer.balance -= transaction.amount;
+                    fromPlayer.balance += transaction.amount;
+                } else {
+                    alert(`${toPlayer.name} 餘額不足以作廢此交易！`);
+                    return;
+                }
+            }
+
+            // 標記交易為已作廢
+            transaction.voided = true;
+
+            alert(`交易 #${transaction.id} 已作廢，金額已復原。`);
+
+            updatePlayersInfo();
+            updateTransactionHistory();
+        }
+
+        // 擲骰子功能，兩顆骰子
+        function rollDice() {
+            const die1 = Math.floor(Math.random() * 6) + 1;
+            const die2 = Math.floor(Math.random() * 6) + 1;
+
+            document.getElementById('die1').textContent = die1;
+            document.getElementById('die2').textContent = die2;
+
+            // 可以根據需要進行其他操作，例如移動玩家等
+            alert(`你擲出了 ${die1} 和 ${die2}！`);
+        }
+    </script>
+</body>
+</html>
