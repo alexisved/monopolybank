@@ -88,6 +88,7 @@
             max-width: 350px;
             text-align: center;
             transition: transform 0.3s ease;
+            cursor: pointer; /* 讓玩家卡片顯示為可點擊 */
         }
 
         .player-card:hover, .transaction-card:hover, .dice-card:hover, .transaction-history-card:hover {
@@ -108,6 +109,15 @@
         .player-card input:focus {
             outline: none;
             border-bottom: 1px solid #333;
+        }
+
+        /* 標示選取的玩家 */
+        .selected-payer {
+            border: 2px solid #4CAF50;
+        }
+
+        .selected-payee {
+            border: 2px solid #007BFF;
         }
 
         /* 交易區域卡片 */
@@ -140,6 +150,49 @@
 
         .transaction-card button:hover {
             background-color: #45a049;
+        }
+
+        /* 快速金額按鈕 */
+        .quick-amount-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .quick-amount-buttons button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 0.9em;
+            flex: 1 1 30%;
+            min-width: 80px;
+        }
+
+        .quick-amount-buttons button:hover {
+            background-color: #1976D2;
+        }
+
+        /* 清空按鈕 */
+        .clear-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .clear-button:hover {
+            background-color: #d32f2f;
         }
 
         /* 骰子區域卡片 */
@@ -416,7 +469,7 @@
             <option value="6">6 人</option>
         </select>
         <label for="initial-balance">輸入初始金額：</label>
-        <input type="number" id="initial-balance" placeholder="初始金額" value="1500">
+        <input type="number" id="initial-balance" placeholder="初始金額" value="15000">
         <button onclick="initializeGame()">開始新遊戲</button>
     </div>
 
@@ -429,15 +482,26 @@
         <div id="transaction-area" class="transaction-card">
             <h3>進行交易</h3>
             <label for="from-player">選擇付款方：</label>
-            <select id="from-player" onchange="updateToPlayerOptions()">
+            <select id="from-player">
                 <option value="bank">銀行</option>
             </select>
             <label for="to-player">選擇收款方：</label>
             <select id="to-player">
                 <option value="" disabled selected>請選擇收款方</option>
             </select>
-            <input type="number" id="amount" placeholder="輸入金額">
+            <input type="number" id="amount" placeholder="輸入金額" inputmode="numeric">
+            <!-- 快速金額按鈕 -->
+            <div class="quick-amount-buttons">
+                <button onclick="modifyQuickAmount(1000, true)">+ 千</button>
+                <button onclick="modifyQuickAmount(1000, false)">- 千</button>
+                <button onclick="modifyQuickAmount(100, true)">+ 百</button>
+                <button onclick="modifyQuickAmount(100, false)">- 百</button>
+                <button onclick="modifyQuickAmount(10, true)">+ 十</button>
+                <button onclick="modifyQuickAmount(10, false)">- 十</button>
+            </div>
             <button onclick="transferMoney()">進行交易</button>
+            <!-- 清空按鈕 -->
+            <button class="clear-button" onclick="clearTransaction()">清空</button>
         </div>
 
         <!-- 骰子區域卡片 -->
@@ -467,6 +531,10 @@
         let transactions = [];
         let transactionIdCounter = 1; // 用於唯一標識交易
 
+        // 選擇的付款方和收款方
+        let selectedPayer = null; // player id or 'bank'
+        let selectedPayee = null; // player id or 'bank'
+
         // 初始化遊戲
         function initializeGame() {
             const numPlayers = document.getElementById('num-players').value;
@@ -489,7 +557,7 @@
             updateTransactionHistory();
         }
 
-        // 更新玩家資訊顯示，並允許編輯玩家名稱
+        // 更新玩家資訊顯示，並允許編輯玩家名稱和點選選擇
         function updatePlayersInfo() {
             const playersInfoDiv = document.getElementById('players-info');
             playersInfoDiv.innerHTML = '';
@@ -501,12 +569,72 @@
             players.forEach(player => {
                 const playerDiv = document.createElement('div');
                 playerDiv.className = 'player-card';
+                // 根據選擇狀態添加類別
+                if (selectedPayer === player.id) {
+                    playerDiv.classList.add('selected-payer');
+                }
+                if (selectedPayee === player.id) {
+                    playerDiv.classList.add('selected-payee');
+                }
                 playerDiv.innerHTML = `
                     <input type="text" value="${player.name}" onchange="editPlayerName(${player.id}, this.value)" />
                     <div>餘額：${player.balance.toLocaleString()} 元</div>
                 `;
+                // 點擊事件處理
+                playerDiv.onclick = function(event) {
+                    // 防止點擊輸入框時觸發選擇
+                    if (event.target.tagName.toLowerCase() === 'input') return;
+                    handlePlayerCardClick(player.id);
+                };
                 playersInfoDiv.appendChild(playerDiv);
             });
+
+            // 如果銀行是付款方或收款方，顯示銀行卡片
+            const bankDiv = document.createElement('div');
+            bankDiv.className = 'player-card';
+            // 根據選擇狀態添加類別
+            if (selectedPayer === 'bank') {
+                bankDiv.classList.add('selected-payer');
+            }
+            if (selectedPayee === 'bank') {
+                bankDiv.classList.add('selected-payee');
+            }
+            bankDiv.innerHTML = `
+                <input type="text" value="銀行" readonly />
+                <div>餘額：∞ 元</div>
+            `;
+            // 點擊事件處理
+            bankDiv.onclick = function(event) {
+                // 防止點擊輸入框時觸發選擇
+                if (event.target.tagName.toLowerCase() === 'input') return;
+                handlePlayerCardClick('bank');
+            };
+            playersInfoDiv.appendChild(bankDiv);
+        }
+
+        // 處理玩家卡片點擊
+        function handlePlayerCardClick(playerId) {
+            if (!selectedPayer) {
+                selectedPayer = playerId;
+                showNotification(`已選擇 ${getPlayerName(playerId)} 為付款方。`, 'success');
+            } else if (!selectedPayee && playerId !== selectedPayer) {
+                selectedPayee = playerId;
+                showNotification(`已選擇 ${getPlayerName(playerId)} 為收款方。`, 'success');
+            } else {
+                // 清空選擇並重新設定付款方
+                selectedPayer = playerId;
+                selectedPayee = null;
+                showNotification(`已重新選擇 ${getPlayerName(playerId)} 為付款方。`, 'success');
+            }
+            updateTransactionSelects();
+            updatePlayersInfo();
+        }
+
+        // 獲取玩家名稱
+        function getPlayerName(playerId) {
+            if (playerId === 'bank') return '銀行';
+            const player = players.find(p => p.id === playerId);
+            return player ? player.name : '未知';
         }
 
         // 編輯玩家名稱
@@ -541,35 +669,37 @@
             });
         }
 
-        // 根據付款方更新收款方選項
-        function updateToPlayerOptions() {
-            const fromPlayerId = document.getElementById('from-player').value;
+        // 更新交易選擇器根據選擇的付款方和收款方
+        function updateTransactionSelects() {
+            const fromPlayerSelect = document.getElementById('from-player');
             const toPlayerSelect = document.getElementById('to-player');
 
-            toPlayerSelect.innerHTML = '<option value="" disabled selected>請選擇收款方</option>';
-
-            if (fromPlayerId !== 'bank') {
-                const bankOption = document.createElement('option');
-                bankOption.value = 'bank';
-                bankOption.text = '銀行';
-                toPlayerSelect.appendChild(bankOption);
+            if (selectedPayer) {
+                fromPlayerSelect.value = selectedPayer;
+            } else {
+                fromPlayerSelect.value = 'bank';
             }
 
-            players.forEach(player => {
-                if (fromPlayerId !== player.id.toString()) {
-                    const optionTo = document.createElement('option');
-                    optionTo.value = player.id;
-                    optionTo.text = player.name;
-                    toPlayerSelect.appendChild(optionTo);
-                }
-            });
+            if (selectedPayee) {
+                toPlayerSelect.value = selectedPayee;
+            } else {
+                toPlayerSelect.value = '';
+            }
         }
 
         // 進行交易，包括銀行角色
         function transferMoney() {
-            const fromPlayerId = document.getElementById('from-player').value;
-            const toPlayerId = document.getElementById('to-player').value;
+            let fromPlayerId = document.getElementById('from-player').value;
+            let toPlayerId = document.getElementById('to-player').value;
             const amount = parseInt(document.getElementById('amount').value);
+
+            // 使用選擇的付款方和收款方
+            if (selectedPayer) {
+                fromPlayerId = selectedPayer;
+            }
+            if (selectedPayee) {
+                toPlayerId = selectedPayee;
+            }
 
             // 檢查付款方和收款方是否為同一人
             if (fromPlayerId === toPlayerId) {
@@ -638,9 +768,39 @@
                 document.getElementById('to-player').value = "";
                 document.getElementById('amount').value = "";
 
+                // 清除選擇
+                selectedPayer = null;
+                selectedPayee = null;
+                updateTransactionSelects();
+                updatePlayersInfo();
+
                 // 顯示交易成功通知
                 showNotification(transactionMessage, 'success');
             }
+        }
+
+        // 增加或減少快速金額
+        function modifyQuickAmount(value, isIncrease) {
+            const amountInput = document.getElementById('amount');
+            let currentAmount = parseInt(amountInput.value) || 0;
+            if (isIncrease) {
+                currentAmount += value;
+            } else {
+                currentAmount -= value;
+                if (currentAmount < 0) currentAmount = 0; // 防止金額小於0
+            }
+            amountInput.value = currentAmount;
+        }
+
+        // 清空交易選擇和金額
+        function clearTransaction() {
+            selectedPayer = null;
+            selectedPayee = null;
+            document.getElementById('from-player').value = 'bank';
+            document.getElementById('to-player').value = "";
+            document.getElementById('amount').value = "";
+            updatePlayersInfo();
+            showNotification('已清空交易設定。', 'success');
         }
 
         // 更新交易紀錄顯示
