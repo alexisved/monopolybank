@@ -6,48 +6,128 @@
     <title>大富翁銀行系統</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* 全局樣式 */
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
-        #players-info, #transaction-area, #dice-area, #transaction-history-area {
+
+        /* 容器樣式 */
+        #game-setup, #game-area {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 設定區域 */
+        #game-setup {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin: 40px 20px;
+            text-align: center;
+        }
+
+        #game-setup h2 {
+            margin-bottom: 20px;
+        }
+
+        #game-setup label, #game-setup select, #game-setup input, #game-setup button {
+            display: block;
+            margin: 15px auto;
+            width: 80%;
+            max-width: 400px;
+            font-size: 1.1em;
+        }
+
+        #game-setup input, #game-setup select {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        #game-setup button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #game-setup button:hover {
+            background-color: #45a049;
+        }
+
+        /* 遊戲區域 */
+        #game-area {
+            display: none;
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            margin: 20px 0;
             justify-content: center;
+            padding: 20px;
         }
+
+        /* 各卡片共用樣式 */
         .player-card, .transaction-card, .dice-card, .transaction-history-card {
             background-color: #faf3e0;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            width: 90%;
-            max-width: 300px;
+            width: 100%;
+            max-width: 350px;
             text-align: center;
+            transition: transform 0.3s ease;
         }
+
+        .player-card:hover, .transaction-card:hover, .dice-card:hover, .transaction-history-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* 玩家資訊卡片 */
         .player-card input {
             font-size: 1.2em;
             border: none;
             border-bottom: 1px solid #ccc;
             text-align: center;
             background: transparent;
+            width: 100%; /* 確保輸入欄寬度為100% */
+            padding: 5px 0; /* 調整上下內邊距 */
         }
+
         .player-card input:focus {
             outline: none;
             border-bottom: 1px solid #333;
         }
+
+        /* 交易區域卡片 */
+        .transaction-card h3 {
+            margin-bottom: 15px;
+        }
+
         .transaction-card label, .transaction-card select, .transaction-card input, .transaction-card button {
             margin-bottom: 10px;
             width: 100%;
             font-size: 1em;
         }
+
         .transaction-card input, .transaction-card select {
             padding: 10px;
             border-radius: 4px;
             border: 1px solid #ccc;
+            width: 100%; /* 確保輸入欄寬度為100% */
         }
+
         .transaction-card button {
             background-color: #4CAF50;
             color: white;
@@ -57,39 +137,44 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+
         .transaction-card button:hover {
             background-color: #45a049;
         }
+
+        /* 骰子區域卡片 */
         .dice-card {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #faf3e0;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 90%;
-            max-width: 300px;
-            text-align: center;
+            position: relative;
         }
+
+        .dice-card h3 {
+            margin-bottom: 15px;
+        }
+
         .dice-container {
             display: flex;
             gap: 10px;
             margin: 10px 0;
             justify-content: center;
         }
+
         .die {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             background-color: white;
             border: 2px solid #333;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5em;
+            font-size: 2em;
             box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
         }
+
         .dice-card button {
             background-color: #007BFF;
             color: white;
@@ -100,28 +185,34 @@
             transition: background-color 0.3s ease;
             margin-top: 20px;
         }
+
         .dice-card button:hover {
             background-color: #0056b3;
         }
+
+        /* 交易紀錄卡片 */
         .transaction-history-card {
             background-color: #faf3e0;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            width: 90%;
+            width: 100%;
             max-width: 600px;
             text-align: left;
         }
+
         .transaction-history-card h3 {
             text-align: center;
             margin-bottom: 15px;
         }
+
         .transaction-list {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             padding: 0;
             list-style: none;
         }
+
         .transaction-item {
             display: flex;
             justify-content: space-between;
@@ -132,9 +223,17 @@
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
         .transaction-details {
             flex: 1;
+            font-size: 0.95em;
+            text-align: left;
         }
+
+        .transaction-details span {
+            display: block;
+        }
+
         .transaction-item button {
             background-color: #f44336;
             color: white;
@@ -144,13 +243,170 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+
         .transaction-item button:hover {
             background-color: #d32f2f;
+        }
+
+        /* 動畫樣式 */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+            animation-iteration-count: 1;
+        }
+
+        /* 彈出提示框 */
+        #dice-result-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
+            text-align: center;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        #dice-result-popup.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #dice-result-popup button {
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #dice-result-popup button:hover {
+            background-color: #45a049;
+        }
+
+        /* 通知框樣式 */
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 5px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s;
+            z-index: 1001;
+        }
+
+        #notification.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 響應式設計 */
+        @media (min-width: 768px) {
+            #game-area {
+                flex-wrap: nowrap;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .player-card, .transaction-card, .dice-card, .transaction-history-card {
+                width: 48%;
+                max-width: none;
+            }
+
+            .transaction-history-card {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            /* 調整玩家名稱輸入欄防止超出卡片 */
+            .player-card input {
+                width: 100%; /* 確保寬度為100% */
+                max-width: 100%;
+            }
+
+            /* 調整交易金額輸入欄 */
+            .transaction-card input {
+                width: 100%; /* 確保輸入欄寬度為100% */
+                max-width: 100%;
+            }
+        }
+
+        /* 特定針對平板的調整 */
+        @media (min-width: 600px) and (max-width: 1024px) {
+            .player-card, .transaction-card, .dice-card, .transaction-history-card {
+                width: 100%;
+                /* 將玩家卡片的寬度增加約三分之一 */
+                max-width: 467px; /* 350px + ~1/3 */
+            }
+
+            /* 調整玩家名稱輸入欄防止超出卡片 */
+            .player-card input {
+                width: 100%; /* 確保寬度為100% */
+                max-width: 100%;
+            }
+
+            /* 調整交易金額輸入欄 */
+            .transaction-card input {
+                width: 100%; /* 確保輸入欄寬度為100% */
+                max-width: 100%;
+            }
+
+            /* 專門針對玩家卡片增加寬度 */
+            .player-card {
+                max-width: 467px; /* 增加三分之一 */
+            }
+
+            /* 其他卡片保持不變或根據需求調整 */
+            .transaction-card, .dice-card, .transaction-history-card {
+                max-width: 500px; /* 可以根據需求調整 */
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 彈出提示框 -->
+    <div id="dice-result-popup">
+        <h2 id="dice-message">你擲出了 - 和 -！</h2>
+        <h3 id="dice-sum">加總：-</h3>
+        <button onclick="closeDicePopup()">關閉</button>
+    </div>
+
+    <!-- 通知框 -->
+    <div id="notification"></div>
+
+    <!-- 遊戲設定區域 -->
     <div id="game-setup">
+        <h2>大富翁銀行系統</h2>
         <label for="num-players">選擇玩家人數：</label>
         <select id="num-players">
             <option value="2">2 人</option>
@@ -164,9 +420,14 @@
         <button onclick="initializeGame()">開始新遊戲</button>
     </div>
 
-    <div id="game-area" style="display:none;">
+    <!-- 遊戲區域 -->
+    <div id="game-area">
+        <!-- 玩家資訊卡片 -->
         <div id="players-info"></div>
+
+        <!-- 交易區域卡片 -->
         <div id="transaction-area" class="transaction-card">
+            <h3>進行交易</h3>
             <label for="from-player">選擇付款方：</label>
             <select id="from-player" onchange="updateToPlayerOptions()">
                 <option value="bank">銀行</option>
@@ -178,6 +439,8 @@
             <input type="number" id="amount" placeholder="輸入金額">
             <button onclick="transferMoney()">進行交易</button>
         </div>
+
+        <!-- 骰子區域卡片 -->
         <div id="dice-area" class="dice-card">
             <h3>擲骰子</h3>
             <div class="dice-container">
@@ -186,6 +449,8 @@
             </div>
             <button onclick="rollDice()">擲骰子</button>
         </div>
+
+        <!-- 交易紀錄卡片 -->
         <div id="transaction-history-area" class="transaction-history-card">
             <h3>交易紀錄</h3>
             <ul class="transaction-list" id="transaction-list">
@@ -217,7 +482,7 @@
 
             // 顯示遊戲區域
             document.getElementById('game-setup').style.display = 'none';
-            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('game-area').style.display = 'flex';
             
             updatePlayersInfo();
             updateTransactionOptions();
@@ -228,6 +493,10 @@
         function updatePlayersInfo() {
             const playersInfoDiv = document.getElementById('players-info');
             playersInfoDiv.innerHTML = '';
+            playersInfoDiv.style.display = 'flex';
+            playersInfoDiv.style.flexWrap = 'wrap';
+            playersInfoDiv.style.gap = '20px';
+            playersInfoDiv.style.justifyContent = 'center';
 
             players.forEach(player => {
                 const playerDiv = document.createElement('div');
@@ -304,13 +573,13 @@
 
             // 檢查付款方和收款方是否為同一人
             if (fromPlayerId === toPlayerId) {
-                alert('付款方和收款方不能是同一人哦！');
+                showNotification('付款方和收款方不能是同一人哦！', 'error');
                 return;
             }
 
             // 檢查金額是否有效
             if (isNaN(amount) || amount <= 0) {
-                alert('請輸入有效的金額！');
+                showNotification('請輸入有效的金額！', 'error');
                 return;
             }
 
@@ -318,18 +587,23 @@
             let fromPlayer = (fromPlayerId === 'bank') ? '銀行' : players.find(player => player.id === parseInt(fromPlayerId));
             let toPlayer = (toPlayerId === 'bank') ? '銀行' : players.find(player => player.id === parseInt(toPlayerId));
 
+            let transactionMessage = '';
+            let transactionSuccess = false;
+
             // 處理銀行相關交易
             if (fromPlayer === '銀行') {
                 // 銀行支付金額給玩家
                 toPlayer.balance += amount;
-                alert(`銀行支付 ${amount.toLocaleString()} 元給 ${toPlayer.name}！`);
+                transactionMessage = `銀行支付 ${amount.toLocaleString()} 元給 ${toPlayer.name}！`;
+                transactionSuccess = true;
             } else if (toPlayer === '銀行') {
                 // 玩家支付金額給銀行
                 if (fromPlayer.balance >= amount) {
                     fromPlayer.balance -= amount;
-                    alert(`${fromPlayer.name} 成功支付 ${amount.toLocaleString()} 元給銀行！`);
+                    transactionMessage = `${fromPlayer.name} 成功支付 ${amount.toLocaleString()} 元給銀行！`;
+                    transactionSuccess = true;
                 } else {
-                    alert(`${fromPlayer.name} 餘額不足，支付失敗！`);
+                    showNotification(`${fromPlayer.name} 餘額不足，支付失敗！`, 'error');
                     return;
                 }
             } else {
@@ -337,29 +611,36 @@
                 if (fromPlayer.balance >= amount) {
                     fromPlayer.balance -= amount;
                     toPlayer.balance += amount;
-                    alert(`${fromPlayer.name} 成功轉帳 ${amount.toLocaleString()} 元給 ${toPlayer.name}！`);
+                    transactionMessage = `${fromPlayer.name} 成功轉帳 ${amount.toLocaleString()} 元給 ${toPlayer.name}！`;
+                    transactionSuccess = true;
                 } else {
-                    alert(`${fromPlayer.name} 餘額不足，轉帳失敗！`);
+                    showNotification(`${fromPlayer.name} 餘額不足，轉帳失敗！`, 'error');
                     return;
                 }
             }
 
-            // 記錄交易
-            const transaction = {
-                id: transactionIdCounter++,
-                from: (fromPlayer === '銀行') ? '銀行' : fromPlayer.id,
-                to: (toPlayer === '銀行') ? '銀行' : toPlayer.id,
-                amount: amount,
-                voided: false
-            };
-            transactions.push(transaction);
-            updateTransactionHistory();
+            if (transactionSuccess) {
+                // 記錄交易
+                const transaction = {
+                    id: transactionIdCounter++,
+                    from: (fromPlayer === '銀行') ? '銀行' : fromPlayer.id,
+                    to: (toPlayer === '銀行') ? '銀行' : toPlayer.id,
+                    amount: amount,
+                    voided: false,
+                    timestamp: new Date()
+                };
+                transactions.push(transaction);
+                updateTransactionHistory();
 
-            updatePlayersInfo();
+                updatePlayersInfo();
 
-            // 清除收款方與交易金額
-            document.getElementById('to-player').value = "";
-            document.getElementById('amount').value = "";
+                // 清除收款方與交易金額
+                document.getElementById('to-player').value = "";
+                document.getElementById('amount').value = "";
+
+                // 顯示交易成功通知
+                showNotification(transactionMessage, 'success');
+            }
         }
 
         // 更新交易紀錄顯示
@@ -367,30 +648,38 @@
             const transactionList = document.getElementById('transaction-list');
             transactionList.innerHTML = '';
 
-            transactions.forEach(transaction => {
+            // 反向顯示，最新交易在最上方
+            for (let i = transactions.length - 1; i >= 0; i--) {
+                const transaction = transactions[i];
                 const li = document.createElement('li');
                 li.className = 'transaction-item';
 
                 // 獲取付款方和收款方名稱
                 const fromName = (transaction.from === '銀行') ? '銀行' : players.find(p => p.id === transaction.from)?.name || '未知';
                 const toName = (transaction.to === '銀行') ? '銀行' : players.find(p => p.id === transaction.to)?.name || '未知';
+                
+                // 格式化時間
+                const timestamp = new Date(transaction.timestamp);
+                const formattedTime = `${timestamp.getFullYear()}-${String(timestamp.getMonth()+1).padStart(2, '0')}-${String(timestamp.getDate()).padStart(2, '0')} ${String(timestamp.getHours()).padStart(2, '0')}:${String(timestamp.getMinutes()).padStart(2, '0')}:${String(timestamp.getSeconds()).padStart(2, '0')}`;
 
                 li.innerHTML = `
                     <div class="transaction-details">
-                        <strong>${fromName}</strong> → <strong>${toName}</strong> : ${transaction.amount.toLocaleString()} 元
+                        <span><strong>${fromName}</strong> → <strong>${toName}</strong></span>
+                        <span>金額：${transaction.amount.toLocaleString()} 元</span>
+                        <span>時間：${formattedTime}</span>
                         ${transaction.voided ? '<span style="color: red;">(已作廢)</span>' : ''}
                     </div>
                     ${!transaction.voided ? `<button onclick="voidTransaction(${transaction.id})">作廢</button>` : ''}
                 `;
                 transactionList.appendChild(li);
-            });
+            }
         }
 
         // 作廢交易紀錄
         function voidTransaction(transactionId) {
             const transaction = transactions.find(t => t.id === transactionId);
             if (!transaction || transaction.voided) {
-                alert('無效的交易紀錄！');
+                showNotification('無效的交易紀錄！', 'error');
                 return;
             }
 
@@ -398,23 +687,30 @@
             let fromPlayer = (transaction.from === '銀行') ? '銀行' : players.find(p => p.id === transaction.from);
             let toPlayer = (transaction.to === '銀行') ? '銀行' : players.find(p => p.id === transaction.to);
 
+            let transactionMessage = '';
+            let transactionSuccess = false;
+
             // 處理復原金額
             if (toPlayer === '銀行') {
                 // 交易原本是付款方支付給銀行，復原為銀行支付給付款方
                 if (fromPlayer === '銀行') {
                     // 交易原本是銀行支付給銀行，這種情況不應發生
-                    alert('無法作廢此交易！');
+                    showNotification('無法作廢此交易！', 'error');
                     return;
                 } else {
                     // 復原：銀行支付給付款方
                     fromPlayer.balance += transaction.amount;
+                    transactionMessage = `交易 #${transaction.id} 已作廢，銀行已支付 ${transaction.amount.toLocaleString()} 元給 ${fromPlayer.name}！`;
+                    transactionSuccess = true;
                 }
             } else if (fromPlayer === '銀行') {
                 // 交易原本是銀行支付給收款方，復原為收款方支付給銀行
                 if (toPlayer.balance >= transaction.amount) {
                     toPlayer.balance -= transaction.amount;
+                    transactionMessage = `交易 #${transaction.id} 已作廢，${toPlayer.name} 已支付 ${transaction.amount.toLocaleString()} 元給銀行！`;
+                    transactionSuccess = true;
                 } else {
-                    alert(`${toPlayer.name} 餘額不足以作廢此交易！`);
+                    showNotification(`${toPlayer.name} 餘額不足以作廢此交易！`, 'error');
                     return;
                 }
             } else {
@@ -422,31 +718,92 @@
                 if (toPlayer.balance >= transaction.amount) {
                     toPlayer.balance -= transaction.amount;
                     fromPlayer.balance += transaction.amount;
+                    transactionMessage = `交易 #${transaction.id} 已作廢，${toPlayer.name} 已支付 ${transaction.amount.toLocaleString()} 元給 ${fromPlayer.name}！`;
+                    transactionSuccess = true;
                 } else {
-                    alert(`${toPlayer.name} 餘額不足以作廢此交易！`);
+                    showNotification(`${toPlayer.name} 餘額不足以作廢此交易！`, 'error');
                     return;
                 }
             }
 
-            // 標記交易為已作廢
-            transaction.voided = true;
+            if (transactionSuccess) {
+                // 標記交易為已作廢
+                transaction.voided = true;
 
-            alert(`交易 #${transaction.id} 已作廢，金額已復原。`);
+                updatePlayersInfo();
+                updateTransactionHistory();
 
-            updatePlayersInfo();
-            updateTransactionHistory();
+                // 顯示交易作廢通知
+                showNotification(transactionMessage, 'success');
+            }
         }
 
-        // 擲骰子功能，兩顆骰子
+        // 擲骰子功能，兩顆骰子，使用動畫
         function rollDice() {
-            const die1 = Math.floor(Math.random() * 6) + 1;
-            const die2 = Math.floor(Math.random() * 6) + 1;
+            const die1 = document.getElementById('die1');
+            const die2 = document.getElementById('die2');
+            const diceButton = document.querySelector('.dice-card button');
 
-            document.getElementById('die1').textContent = die1;
-            document.getElementById('die2').textContent = die2;
+            // 添加搖晃動畫
+            die1.classList.add('shake');
+            die2.classList.add('shake');
+            diceButton.disabled = true; // 禁用按鈕，防止重複點擊
 
-            // 可以根據需要進行其他操作，例如移動玩家等
-            alert(`你擲出了 ${die1} 和 ${die2}！`);
+            // 模擬動畫持續時間
+            setTimeout(() => {
+                const value1 = Math.floor(Math.random() * 6) + 1;
+                const value2 = Math.floor(Math.random() * 6) + 1;
+                const sum = value1 + value2;
+
+                die1.textContent = value1;
+                die2.textContent = value2;
+
+                // 顯示彈出提示框，包含加總
+                showDicePopup(`你擲出了 ${value1} 和 ${value2}！`, sum);
+
+                // 移除搖晃動畫
+                die1.classList.remove('shake');
+                die2.classList.remove('shake');
+                diceButton.disabled = false; // 重新啟用按鈕
+            }, 1000); // 動畫持續1秒
+        }
+
+        // 顯示骰子結果彈出框
+        function showDicePopup(message, sum) {
+            const popup = document.getElementById('dice-result-popup');
+            const messageEl = document.getElementById('dice-message');
+            const sumEl = document.getElementById('dice-sum');
+            messageEl.textContent = message;
+            sumEl.textContent = `加總：${sum}`;
+            popup.classList.add('show');
+        }
+
+        // 關閉骰子結果彈出框
+        function closeDicePopup() {
+            const popup = document.getElementById('dice-result-popup');
+            popup.classList.remove('show');
+        }
+
+        // 顯示通知訊息
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+
+            // 設定不同類型的背景顏色
+            if (type === 'success') {
+                notification.style.backgroundColor = '#4CAF50'; // 綠色
+            } else if (type === 'error') {
+                notification.style.backgroundColor = '#f44336'; // 紅色
+            } else {
+                notification.style.backgroundColor = '#333'; // 默認顏色
+            }
+
+            notification.classList.add('show');
+
+            // 自動隱藏通知
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000); // 顯示3秒
         }
     </script>
 </body>
