@@ -46,11 +46,11 @@
             margin: 15px auto;
             width: 80%;
             max-width: 400px;
-            font-size: 1.1em;
+            font-size: 1.2em; /* 增大字體大小 */
         }
 
         #game-setup input, #game-setup select {
-            padding: 10px;
+            padding: 12px; /* 增大按鈕內邊距 */
             border-radius: 4px;
             border: 1px solid #ccc;
         }
@@ -59,11 +59,12 @@
             background-color: #6c5ce7;
             color: white;
             border: none;
-            padding: 12px;
+            padding: 16px; /* 增大按鈕內邊距 */
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-weight: bold;
+            font-size: 1.2em; /* 增大字體大小 */
         }
 
         #game-setup button:hover {
@@ -81,24 +82,37 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
+            grid-template-areas:
+                "players-info"
+                "transaction-area"
+                "dice-area"
+                "transaction-history";
         }
 
-        /* 在更大螢幕上增加欄數 */
+        /* 在更大螢幕上增加欄數並調整布局 */
         @media (min-width: 768px) {
             #game-area {
                 grid-template-columns: repeat(2, 1fr);
+                grid-template-areas:
+                    "players-info transaction-area"
+                    "dice-area transaction-history";
             }
         }
 
         @media (min-width: 1024px) {
             #game-area {
                 grid-template-columns: repeat(3, 1fr);
+                grid-template-areas:
+                    "players-info transaction-area dice-area"
+                    "players-info transaction-area transaction-history";
             }
         }
 
         @media (min-width: 1440px) {
             #game-area {
                 grid-template-columns: repeat(4, 1fr);
+                grid-template-areas:
+                    "players-info transaction-area dice-area transaction-history";
             }
         }
 
@@ -152,13 +166,13 @@
         }
 
         .transaction-card label, .transaction-card select, .transaction-card input, .transaction-card button {
-            margin-bottom: 10px;
+            margin-bottom: 12px; /* 增加下邊距 */
             width: 100%;
-            font-size: 1em;
+            font-size: 1.1em; /* 增大字體大小 */
         }
 
         .transaction-card input, .transaction-card select {
-            padding: 10px;
+            padding: 12px; /* 增大內邊距 */
             border-radius: 4px;
             border: 1px solid #ccc;
             width: 100%; /* 確保輸入欄寬度為100% */
@@ -168,11 +182,12 @@
             background-color: #00b894;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 14px; /* 增大按鈕內邊距 */
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-weight: bold;
+            font-size: 1.1em; /* 增大字體大小 */
         }
 
         .transaction-card button:hover {
@@ -183,8 +198,8 @@
         .quick-amount-buttons {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 15px; /* 增加間距 */
+            margin-top: 15px;
         }
 
         .amount-group {
@@ -201,19 +216,19 @@
 
         .amount-group .buttons {
             display: flex;
-            gap: 5px;
+            gap: 8px; /* 增加間距 */
         }
 
         .amount-group .buttons button {
-            padding: 8px;
+            padding: 12px; /* 增大按鈕內邊距 */
             border: none;
             border-radius: 4px;
             cursor: pointer;
             color: white;
             transition: background-color 0.3s ease;
-            width: 40px;
-            height: 40px;
-            font-size: 1.2em;
+            width: 50px; /* 增大按鈕寬度 */
+            height: 50px; /* 增大按鈕高度 */
+            font-size: 1.5em; /* 增大字體大小 */
             font-weight: bold;
         }
 
@@ -249,16 +264,35 @@
             background-color: #d63031;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 14px; /* 增大按鈕內邊距 */
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            margin-top: 10px;
+            margin-top: 15px;
             width: 100%;
             font-weight: bold;
+            font-size: 1.1em; /* 增大字體大小 */
         }
 
         .clear-button:hover {
+            background-color: #ff7675;
+        }
+
+        /* 重置遊戲按鈕 */
+        #reset-game-button {
+            background-color: #d63031;
+            color: white;
+            border: none;
+            padding: 14px; /* 增大按鈕內邊距 */
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 1.1em; /* 增大字體大小 */
+        }
+
+        #reset-game-button:hover {
             background-color: #ff7675;
         }
 
@@ -279,8 +313,8 @@
         .die {
             width: 60px;
             height: 60px;
-            background-color: #ffeaa7;
-            border: 2px solid #d63031;
+            background-color: #ffffff; /* 修改底色為白色 */
+            border: 2px solid #555555; /* 修改邊框顏色為深灰色 */
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -294,12 +328,13 @@
             background-color: #0984e3;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 14px 24px; /* 增大按鈕內邊距 */
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
             margin-top: 20px;
             font-weight: bold;
+            font-size: 1.1em; /* 增大字體大小 */
         }
 
         .dice-card button:hover {
@@ -326,7 +361,7 @@
             justify-content: space-between;
             align-items: center;
             background-color: #ffffff;
-            padding: 10px;
+            padding: 12px; /* 增大內邊距 */
             margin-bottom: 10px;
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -334,7 +369,7 @@
 
         .transaction-details {
             flex: 1;
-            font-size: 0.95em;
+            font-size: 1em; /* 增大字體大小 */
             text-align: left;
             color: #2d3436;
         }
@@ -347,11 +382,12 @@
             background-color: #d63031;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 14px; /* 增大按鈕內邊距 */
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-weight: bold;
+            font-size: 1em; /* 增大字體大小 */
         }
 
         .transaction-item button:hover {
@@ -410,11 +446,12 @@
             background-color: #00cec9;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px; /* 增大按鈕內邊距 */
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-weight: bold;
+            font-size: 1.1em; /* 增大字體大小 */
         }
 
         #dice-result-popup button:hover {
@@ -442,28 +479,16 @@
             visibility: visible;
         }
 
-        /* 重置遊戲按鈕 */
-        #reset-game-button {
-            background-color: #d63031;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        #reset-game-button:hover {
-            background-color: #ff7675;
-        }
-
         /* 響應式設計 */
         /* 手機和小型裝置 */
         @media (max-width: 599px) {
             #game-area {
                 grid-template-columns: 1fr;
+                grid-template-areas:
+                    "players-info"
+                    "transaction-area"
+                    "dice-area"
+                    "transaction-history";
             }
 
             .player-card, .transaction-card, .dice-card, .transaction-history-card {
@@ -476,6 +501,9 @@
         @media (min-width: 600px) and (max-width: 1023px) {
             #game-area {
                 grid-template-columns: repeat(2, 1fr);
+                grid-template-areas:
+                    "players-info transaction-area"
+                    "dice-area transaction-history";
             }
 
             .player-card, .transaction-card, .dice-card, .transaction-history-card {
@@ -484,29 +512,45 @@
             }
 
             .transaction-history-card {
-                grid-column: 1 / -1; /* 占滿整行 */
+                grid-area: transaction-history;
             }
         }
 
         /* 桌面裝置 */
         @media (min-width: 1024px) {
             #game-area {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-areas:
+                    "players-info transaction-area dice-area transaction-history";
             }
 
-            .player-card, .transaction-card, .dice-card {
-                flex: 1 1 22%;
-                max-width: 22%;
+            .player-card {
+                grid-area: players-info;
+            }
+
+            .transaction-card {
+                grid-area: transaction-area;
+            }
+
+            .dice-card {
+                grid-area: dice-area;
             }
 
             .transaction-history-card {
-                grid-column: 1 / -1; /* 占滿整行 */
+                grid-area: transaction-history;
+            }
+
+            .player-card, .transaction-card, .dice-card, .transaction-history-card {
+                flex: 1 1 22%;
+                max-width: 22%;
             }
         }
 
         @media (min-width: 1440px) {
             #game-area {
                 grid-template-columns: repeat(4, 1fr);
+                grid-template-areas:
+                    "players-info transaction-area dice-area transaction-history";
             }
         }
     </style>
@@ -529,22 +573,22 @@
         <select id="num-players">
             <option value="2">2 人</option>
             <option value="3">3 人</option>
-            <option value="4">4 人</option>
+            <option value="4" selected>4 人</option> <!-- 預設選擇4人 -->
             <option value="5">5 人</option>
             <option value="6">6 人</option>
         </select>
         <label for="initial-balance">輸入初始金額：</label>
-        <input type="number" id="initial-balance" placeholder="初始金額" value="1500" min="0">
+        <input type="number" id="initial-balance" placeholder="初始金額" value="15000" min="0"> <!-- 預設初始金額為15000 -->
         <button onclick="initializeGame()">開始新遊戲</button>
     </div>
 
     <!-- 遊戲區域 -->
     <div id="game-area">
         <!-- 玩家資訊卡片 -->
-        <div id="players-info"></div>
+        <div id="players-info" style="grid-area: players-info;"></div>
 
         <!-- 交易區域卡片 -->
-        <div id="transaction-area" class="transaction-card">
+        <div id="transaction-area" class="transaction-card" style="grid-area: transaction-area;">
             <h3>進行交易</h3>
             <label for="from-player">選擇付款方：</label>
             <select id="from-player">
@@ -591,7 +635,7 @@
         </div>
 
         <!-- 骰子區域卡片 -->
-        <div id="dice-area" class="dice-card">
+        <div id="dice-area" class="dice-card" style="grid-area: dice-area;">
             <h3>擲骰子</h3>
             <div class="dice-container">
                 <div class="die" id="die1">-</div>
@@ -601,7 +645,7 @@
         </div>
 
         <!-- 交易紀錄卡片 -->
-        <div id="transaction-history-area" class="transaction-history-card">
+        <div id="transaction-history-area" class="transaction-history-card" style="grid-area: transaction-history;">
             <h3>交易紀錄</h3>
             <ul class="transaction-list" id="transaction-list">
                 <!-- 交易紀錄將在這裡顯示 -->
